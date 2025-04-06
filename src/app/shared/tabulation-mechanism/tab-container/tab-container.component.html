@@ -1,0 +1,12 @@
+<ul class="nav nav-tabs">
+    <li class="nav-item" *ngFor="let title of getTitles(); index as index">
+        <a
+                [ngClass]="index === openTabId ? 'is-active' : ''"
+                (click)="selectTabByIndex(index)">
+            <span>{{ title }}</span>
+            <span (click)="close($event, index)" class="ml-10">&times;</span></a>
+    </li>
+</ul>
+<div class="tab-container">
+    <ng-content></ng-content>
+</div>
