@@ -1,4 +1,4 @@
-import {computed, Injectable, signal} from '@angular/core';
+import { computed, Injectable, signal } from '@angular/core';
 
 export const LOCATIONS: string = 'locations';
 
@@ -16,7 +16,10 @@ export class LocationService {
     readonly locations = computed(() => this.locationsSignal());
 
     addLocation(zipcode: string): void {
-        const updated = [...this.locationsSignal(), zipcode];
+        const existing = this.locationsSignal();
+        if (existing.includes(zipcode)) return;
+
+        const updated = [...existing, zipcode];
         this.updateLocations(updated);
     }
 
@@ -40,4 +43,3 @@ export class LocationService {
         }
     }
 }
-
