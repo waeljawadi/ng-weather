@@ -4,7 +4,8 @@ import { WeatherService } from '../../services/weather.service';
 
 @Component({
   selector: 'app-zipcode-entry',
-  templateUrl: './zipcode-entry.component.html'
+  templateUrl: './zipcode-entry.component.html',
+  styleUrls: ['./zipcode-entry.component.scss']
 })
 export class ZipcodeEntryComponent {
   constructor(

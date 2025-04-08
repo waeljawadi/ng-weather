@@ -6,7 +6,6 @@
 }
 
 .nav-item {
-  margin-bottom: -2px;
   list-style: none;
 }
 
@@ -18,7 +17,6 @@
   font-weight: 500;
   color: #555;
   text-decoration: none;
-  border: none;
   border-bottom: 2px solid transparent;
   background: none;
   cursor: pointer;
@@ -36,11 +34,6 @@
   font-weight: 600;
 }
 
-.nav-item a span {
-  display: inline-block;
-  margin-right: 6px;
-}
-
 .nav-item a .ml-10 {
   margin-left: 8px;
   font-size: 1.1em;
@@ -50,5 +43,5 @@
 }
 
 .nav-item a .ml-10:hover {
-  color: #dc3545; /* red for delete */
+  color: #dc3545;
 }

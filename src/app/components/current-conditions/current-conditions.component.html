@@ -22,9 +22,9 @@
                 <p class="zip">{{ location.zip }}</p>
                 <p class="condition">{{ location.data.weather[0].main }}</p>
                 <div class="temps-row">
-                    <span>🌡️ {{ location.data.main.temp | number: '0.0-0' }}°</span>
-                    <span>🔺 {{ location.data.main.temp_max | number: '0.0-0' }}°</span>
-                    <span>🔻 {{ location.data.main.temp_min | number: '0.0-0' }}°</span>
+                    <p><span class="temp-icon pulse">🌡️</span> Current: {{ location.data.main.temp | number: '0.0-0' }}°</p>
+                    <p><span class="temp-icon bounce-up">🔺</span> Max: {{ location.data.main.temp_max | number: '0.0-0' }}°</p>
+                    <p><span class="temp-icon bounce-down">🔻</span> Min: {{ location.data.main.temp_min | number: '0.0-0' }}°</p>
                 </div>
             </div>
 

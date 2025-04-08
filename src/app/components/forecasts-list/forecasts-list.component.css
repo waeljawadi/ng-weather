@@ -1,7 +1,87 @@
-.icon {
-  width: 45px;
-  height: 45px;
-  position: absolute;
-  right: 20px;
-  top: -2px;
+body {
+    background: linear-gradient(to bottom, #d0d8e8, #f0f2f5);
+    min-height: 100vh;
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
 }
+
+.container {
+    padding: 2rem;
+}
+
+.forecast-card {
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.forecast-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+.weather-icon {
+    width: 60px;
+    height: 60px;
+}
+
+.forecast-card {
+    background: #f9fbfc;
+    border-radius: 12px;
+    padding: 1rem 1.5rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease;
+    border-left: 4px solid #4da6ff;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.forecast-card:hover {
+    background: #eef5fa;
+    transform: scale(1.01);
+}
+
+.weather-icon {
+    width: 50px;
+    height: 50px;
+    animation: floatIcon 3s ease-in-out infinite;
+}
+
+@keyframes floatIcon {
+    0% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-6px);
+    }
+    100% {
+        transform: translateY(0);
+    }
+}
+
+.back-btn-lg {
+    background-color: #4da6ff;
+    color: #ffffff;
+    border: none;
+    padding: 1rem 2.5rem;
+    font-size: 1.35rem;
+font-weight: 700;
+border-radius: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+    letter-spacing: 0.5px;
+}
+
+.back-btn-lg:hover {
+    background-color: #3399ff;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    transform: translateY(-3px);
+}
+
+
+
