@@ -65,4 +65,32 @@ export class CurrentConditionsComponent {
                 this.fetchedZips.add(zip);
             });
     }
+
+    getTime(unix: number): string {
+        return new Date(unix * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+
+    getWeatherBackground(condition: string): string {
+        switch (condition.toLowerCase()) {
+            case 'clear':
+                return 'bg-clear';
+            case 'clouds':
+                return 'bg-clouds';
+            case 'rain':
+            case 'drizzle':
+                return 'bg-rain';
+            case 'thunderstorm':
+                return 'bg-thunderstorm';
+            case 'snow':
+                return 'bg-snow';
+            case 'mist':
+            case 'fog':
+            case 'haze':
+                return 'bg-mist';
+            default:
+                return 'bg-default';
+        }
+    }
+
+
 }

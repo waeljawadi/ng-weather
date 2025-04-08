@@ -1,19 +1,54 @@
-.is-active {
-  border:1px dotted;
-}
-
-.ml-10 {
-  margin-left: 10px;
+.nav-tabs {
+  display: flex;
+  border-bottom: 2px solid #dee2e6;
+  padding-left: 0;
+  margin-bottom: 16px;
 }
 
 .nav-item {
-  cursor: pointer;
+  margin-bottom: -2px;
+  list-style: none;
 }
 
-.nav-tabs {
+.nav-item a {
+  display: inline-flex;
+  align-items: center;
+  padding: 10px 16px;
+  font-size: 1em;
+  font-weight: 500;
+  color: #555;
+  text-decoration: none;
   border: none;
+  border-bottom: 2px solid transparent;
+  background: none;
+  cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease;
 }
 
-.tab-container {
-  position: relative;
+.nav-item a:hover {
+  color: #007BFF;
+  border-bottom: 2px solid #cce5ff;
+}
+
+.nav-item a.is-active {
+  color: #007BFF;
+  border-bottom: 2px solid #007BFF;
+  font-weight: 600;
+}
+
+.nav-item a span {
+  display: inline-block;
+  margin-right: 6px;
+}
+
+.nav-item a .ml-10 {
+  margin-left: 8px;
+  font-size: 1.1em;
+  font-weight: bold;
+  color: #999;
+  transition: color 0.2s ease;
+}
+
+.nav-item a .ml-10:hover {
+  color: #dc3545; /* red for delete */
 }
