@@ -1,50 +1,78 @@
-import {inject, Injectable, signal, Signal} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
-import {interval} from 'rxjs';
-import {CurrentConditions} from '../model/current-conditions.model';
-import {ConditionsAndZip} from '../model/conditions-and-zip.model';
-import {Forecast} from '../model/forecast.model';
-import {LocationService} from './location.service';
+import { inject, Injectable, signal, Signal } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { of, Observable } from 'rxjs';
+import { tap } from 'rxjs/operators';
+import { CurrentConditions } from '../model/current-conditions.model';
+import { ConditionsAndZip } from '../model/conditions-and-zip.model';
+import { Forecast } from '../model/forecast.model';
+import { LocationService } from './location.service';
+import { startAutoRefresh } from '../utils/auto-refresh';
 
 @Injectable()
 export class WeatherService {
     static URL = 'https://api.openweathermap.org/data/2.5';
     static APPID = '5a4b2d457ecbef9eb2a71e480b947604';
     static ICON_URL = 'https://raw.githubusercontent.com/udacity/Sunshine-Version-2/sunshine_master/app/src/main/res/drawable-hdpi/';
-    private static STORAGE_KEY = 'CURRENT_CONDITIONS';
+    private static CURRENT_STORAGE_KEY = 'CURRENT_CONDITIONS';
+    private static FORECAST_STORAGE_KEY = 'FORECASTS';
 
     private http = inject(HttpClient);
     private locationService = inject(LocationService);
+
     private currentConditions = signal<ConditionsAndZip[]>([]);
+    private forecastCache = signal<Map<string, Forecast>>(new Map());
 
     constructor() {
         this.restoreConditionsFromStorage();
+        this.restoreForecastCache();
 
-        // Load missing zips only on first load
+        // Initial load for any zip not already in current conditions
         this.locationService.locations().forEach(zip => this.addCurrentConditions(zip));
 
-        // Refresh all known zips every X seconds
-        this.setupAutoRefresh();
+        // Auto-refresh current weather data every 10 seconds
+        startAutoRefresh(
+            () => this.locationService.locations(),
+            (zip) => this.forceRefreshCurrentConditions(zip),
+            10000
+        );
+
+        // Auto-refresh forecast data every 60 seconds
+        startAutoRefresh(
+            () => this.locationService.locations(),
+            (zip) => this.forceRefreshForecast(zip),
+            10000
+        );
     }
 
-    // Only adds if not already in memory
     addCurrentConditions(zipcode: string): void {
-        if (this.currentConditions().some(c => c.zip === zipcode)) {
-            return;
-        }
+        if (this.currentConditions().some(c => c.zip === zipcode)) return;
         this.forceRefreshCurrentConditions(zipcode);
     }
 
-    // Always fetches and updates cache + localStorage
     forceRefreshCurrentConditions(zipcode: string): void {
         this.http.get<CurrentConditions>(
             `${WeatherService.URL}/weather?zip=${zipcode},us&units=imperial&APPID=${WeatherService.APPID}`
         ).subscribe(data => {
             const updated = [
                 ...this.currentConditions().filter(c => c.zip !== zipcode),
-                {zip: zipcode, data}
+                { zip: zipcode, data }
             ];
             this.updateCurrentConditions(updated);
+        });
+    }
+
+    forceRefreshForecast(zipcode: string): void {
+        this.http.get<Forecast>(
+            `${WeatherService.URL}/forecast/daily?zip=${zipcode},us&units=imperial&cnt=5&APPID=${WeatherService.APPID}`
+        ).subscribe(forecast => {
+            const updated = new Map(this.forecastCache());
+            updated.set(zipcode, forecast);
+            this.forecastCache.set(updated);
+
+            localStorage.setItem(
+                WeatherService.FORECAST_STORAGE_KEY,
+                JSON.stringify(Object.fromEntries(updated))
+            );
         });
     }
 
@@ -57,41 +85,45 @@ export class WeatherService {
         return this.currentConditions.asReadonly();
     }
 
-    getForecast(zipcode: string) {
+    getForecast(zipcode: string): Observable<Forecast> {
+        const cache = this.forecastCache();
+        if (cache.has(zipcode)) {
+            return of(cache.get(zipcode)!);
+        }
+
         return this.http.get<Forecast>(
             `${WeatherService.URL}/forecast/daily?zip=${zipcode},us&units=imperial&cnt=5&APPID=${WeatherService.APPID}`
+        ).pipe(
+            tap(forecast => {
+                const updated = new Map(this.forecastCache());
+                updated.set(zipcode, forecast);
+                this.forecastCache.set(updated);
+
+                localStorage.setItem(
+                    WeatherService.FORECAST_STORAGE_KEY,
+                    JSON.stringify(Object.fromEntries(updated))
+                );
+            })
         );
     }
 
     getWeatherIcon(id: number): string {
-        if (id >= 200 && id <= 232) {
-            return WeatherService.ICON_URL + 'art_storm.png';
-        }
-        if (id >= 501 && id <= 511) {
-            return WeatherService.ICON_URL + 'art_rain.png';
-        }
-        if (id === 500 || (id >= 520 && id <= 531)) {
-            return WeatherService.ICON_URL + 'art_light_rain.png';
-        }
-        if (id >= 600 && id <= 622) {
-            return WeatherService.ICON_URL + 'art_snow.png';
-        }
-        if (id >= 801 && id <= 804) {
-            return WeatherService.ICON_URL + 'art_clouds.png';
-        }
-        if (id === 741 || id === 761) {
-            return WeatherService.ICON_URL + 'art_fog.png';
-        }
+        if (id >= 200 && id <= 232) return WeatherService.ICON_URL + 'art_storm.png';
+        if (id >= 501 && id <= 511) return WeatherService.ICON_URL + 'art_rain.png';
+        if (id === 500 || (id >= 520 && id <= 531)) return WeatherService.ICON_URL + 'art_light_rain.png';
+        if (id >= 600 && id <= 622) return WeatherService.ICON_URL + 'art_snow.png';
+        if (id >= 801 && id <= 804) return WeatherService.ICON_URL + 'art_clouds.png';
+        if (id === 741 || id === 761) return WeatherService.ICON_URL + 'art_fog.png';
         return WeatherService.ICON_URL + 'art_clear.png';
     }
 
     private updateCurrentConditions(conditions: ConditionsAndZip[]): void {
         this.currentConditions.set(conditions);
-        localStorage.setItem(WeatherService.STORAGE_KEY, JSON.stringify(conditions));
+        localStorage.setItem(WeatherService.CURRENT_STORAGE_KEY, JSON.stringify(conditions));
     }
 
     private restoreConditionsFromStorage(): void {
-        const raw = localStorage.getItem(WeatherService.STORAGE_KEY);
+        const raw = localStorage.getItem(WeatherService.CURRENT_STORAGE_KEY);
         if (raw) {
             try {
                 const parsed: ConditionsAndZip[] = JSON.parse(raw);
@@ -103,12 +135,16 @@ export class WeatherService {
         }
     }
 
-    private setupAutoRefresh(): void {
-        const intervalMs = 10000; // Refresh every 10 seconds
-
-        interval(intervalMs).subscribe(() => {
-            const zips = this.locationService.locations();
-            zips.forEach(zip => this.forceRefreshCurrentConditions(zip));
-        });
+    private restoreForecastCache(): void {
+        const raw = localStorage.getItem(WeatherService.FORECAST_STORAGE_KEY);
+        if (raw) {
+            try {
+                const parsed: Record<string, Forecast> = JSON.parse(raw);
+                this.forecastCache.set(new Map(Object.entries(parsed)));
+            } catch (e) {
+                console.warn('Invalid FORECASTS data in localStorage', e);
+                this.forecastCache.set(new Map());
+            }
+        }
     }
 }
