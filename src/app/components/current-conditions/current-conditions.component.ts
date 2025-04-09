@@ -27,7 +27,7 @@ export class CurrentConditionsComponent {
 
     constructor() {
         // Reactive effect to automatically fetch data when locations change
-        effect(() => this.getLocations());
+         this.getLocations();
     }
 
     // Get currently open tab index from localStorage
