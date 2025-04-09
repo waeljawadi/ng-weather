@@ -1,3 +1,9 @@
+<div class="loader-container" *ngIf="loadingConditions()">
+    <div class="spinner"></div>
+    <p class="loading-text">Loading current conditions...</p>
+</div>
+<div *ngIf="!loadingConditions()">
+
 <tab-container [(openTabId)]="openTabId" (closeTab)="removeCondition($event)">
     <tab-item *ngFor="let location of currentConditionsByZip(); index as i" [title]="location.data.name">
 
@@ -42,3 +48,4 @@
 
     </tab-item>
 </tab-container>
+</div>

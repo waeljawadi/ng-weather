@@ -1,7 +1,5 @@
 import {effect, inject, Injectable, signal, Signal} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {Observable, of} from 'rxjs';
-import {tap} from 'rxjs/operators';
 import {CurrentConditions} from '../model/current-conditions.model';
 import {ConditionsAndZip} from '../model/conditions-and-zip.model';
 import {Forecast} from '../model/forecast.model';
@@ -24,6 +22,10 @@ export class WeatherService {
     private currentConditions = signal<ConditionsAndZip[]>([]);
     private forecastCache = signal<Map<string, Forecast>>(new Map());
     refreshCacheCycle = signal<number>(10000);
+    loadingForecast = signal<boolean>(false);
+    loadingCurrentConditions = signal<boolean>(false);
+
+
 
     private currentConditionIntervalId: any;
     private forecastIntervalId: any;
@@ -37,6 +39,7 @@ export class WeatherService {
 
         effect(() => {
             const cycle = this.refreshCacheCycle();
+            console.log(cycle);
             clearInterval(this.currentConditionIntervalId);
             clearInterval(this.forecastIntervalId);
 
@@ -63,31 +66,44 @@ export class WeatherService {
     }
 
     forceRefreshCurrentConditions(zipcode: string): void {
+        this.loadingCurrentConditions.set(true);
+
         this.http.get<CurrentConditions>(
             `${WEATHER_API_BASE_URL}/weather?zip=${zipcode},us&units=imperial&APPID=${WEATHER_API_KEY}`
-        ).subscribe(data => {
-            const updated = [
-                ...this.currentConditions().filter(c => c.zip !== zipcode),
-                {zip: zipcode, data}
-            ];
-            this.updateCurrentConditions(updated);
+        ).subscribe({
+            next: (data) => {
+                const updated = [
+                    ...this.currentConditions().filter(c => c.zip !== zipcode),
+                    { zip: zipcode, data }
+                ];
+                this.updateCurrentConditions(updated);
+            },
+            complete: () => this.loadingCurrentConditions.set(false),
+            error: () => this.loadingCurrentConditions.set(false)
         });
     }
 
-    forceRefreshForecast(zipcode: string): void {
+    forceRefreshForecast(zip: string): void {
+        this.loadingForecast.set(true);
+
         this.http.get<Forecast>(
-            `${WEATHER_API_BASE_URL}/forecast/daily?zip=${zipcode},us&units=imperial&cnt=5&APPID=${WEATHER_API_KEY}`
-        ).subscribe(forecast => {
-            const updated = new Map(this.forecastCache());
-            updated.set(zipcode, forecast);
-            this.forecastCache.set(updated);
+            `${WEATHER_API_BASE_URL}/forecast/daily?zip=${zip},us&units=imperial&cnt=5&APPID=${WEATHER_API_KEY}`
+        ).subscribe({
+            next: (forecast) => {
+                const updated = new Map(this.forecastCache());
+                updated.set(zip, forecast);
+                this.forecastCache.set(updated);
 
-            localStorage.setItem(
-                FORECAST_STORAGE_KEY,
-                JSON.stringify(Object.fromEntries(updated))
-            );
+                localStorage.setItem(
+                    FORECAST_STORAGE_KEY,
+                    JSON.stringify(Object.fromEntries(updated))
+                );
+            },
+            complete: () => this.loadingForecast.set(false),
+            error: () => this.loadingForecast.set(false)
         });
     }
+
 
     removeCurrentConditions(zipcode: string): void {
         const updated = this.currentConditions().filter(c => c.zip !== zipcode);
@@ -98,26 +114,8 @@ export class WeatherService {
         return this.currentConditions.asReadonly();
     }
 
-    getForecast(zipcode: string): Observable<Forecast> {
-        const cache = this.forecastCache();
-        if (cache.has(zipcode)) {
-            return of(cache.get(zipcode)!);
-        }
-
-        return this.http.get<Forecast>(
-            `${WEATHER_API_BASE_URL}/forecast/daily?zip=${zipcode},us&units=imperial&cnt=5&APPID=${WEATHER_API_KEY}`
-        ).pipe(
-            tap(forecast => {
-                const updated = new Map(this.forecastCache());
-                updated.set(zipcode, forecast);
-                this.forecastCache.set(updated);
-
-                localStorage.setItem(
-                    FORECAST_STORAGE_KEY,
-                    JSON.stringify(Object.fromEntries(updated))
-                );
-            })
-        );
+    getForeCastSignal(): Signal<Map<string, Forecast>> {
+        return this.forecastCache.asReadonly();
     }
 
     getWeatherIcon(id: number): string {

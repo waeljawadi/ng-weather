@@ -8,25 +8,31 @@ import { WeatherService } from '../../services/weather.service';
 })
 export class SettingsComponent {
 
-    refreshCacheCycle: number;
+    private readonly MS_IN_SECOND = 1000;
+    refreshCacheCycle: number = 10; // in seconds
 
     constructor(private weatherService: WeatherService) {
-        const stored = localStorage.getItem('refreshCacheCycle');
+        const stored = Number(localStorage.getItem('refreshCacheCycle'));
 
-        // If value exists, use it — otherwise default to 10000
-        this.refreshCacheCycle = stored ? Number(stored) : 10000;
-
-        // Save default value to localStorage if it didn't exist
-        if (!stored) {
-            localStorage.setItem('refreshCacheCycle', String(this.refreshCacheCycle));
+        if (!isNaN(stored)) {
+            this.refreshCacheCycle = stored / this.MS_IN_SECOND;
+        } else {
+            this.saveCycleToStorage();
         }
 
-        // Update signal
-        this.weatherService.refreshCacheCycle.set(this.refreshCacheCycle);
+        this.weatherService.refreshCacheCycle.set(this.toMilliseconds(this.refreshCacheCycle));
     }
 
     setRefreshCycle(): void {
-        localStorage.setItem('refreshCacheCycle', String(this.refreshCacheCycle));
-        this.weatherService.refreshCacheCycle.set(this.refreshCacheCycle);
+        this.saveCycleToStorage();
+        this.weatherService.refreshCacheCycle.set(this.toMilliseconds(this.refreshCacheCycle));
+    }
+
+    private saveCycleToStorage(): void {
+        localStorage.setItem('refreshCacheCycle', String(this.toMilliseconds(this.refreshCacheCycle)));
+    }
+
+    private toMilliseconds(seconds: number): number {
+        return seconds * this.MS_IN_SECOND;
     }
 }

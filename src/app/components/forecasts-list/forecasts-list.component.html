@@ -1,22 +1,33 @@
-<div class="container my-4">
-    <h3 class="text-center mb-4 fw-bold">5-day forecast for {{ forecast?.city.name }}</h3>
+<div class="container">
+    <div class="loader-container" *ngIf="loading()">
+        <div class="spinner"></div>
+        <p class="loading-text">Loading forecast...</p>
+    </div>
 
-    <div *ngFor="let dailyForecast of forecast?.list" class="forecast-card">
-        <div>
-            <div class="fw-semibold mb-1">
-                {{ dailyForecast.dt * 1000 | date: 'EEEE, MMM d' }}
+    <div *ngIf="!loading()">
+        <div *ngIf="forecast() as forecast">
+            <h3 class="text-center mb-4 fw-bold">5-day forecast for {{ forecast.city.name }}</h3>
+
+            <div *ngFor="let dailyForecast of forecast.list" class="forecast-card">
+                <div>
+                    <div class="fw-semibold mb-1">
+                        {{ dailyForecast.dt * 1000 | date: 'EEEE, MMM d' }}
+                    </div>
+                    <div>{{ dailyForecast.weather[0].main }}</div>
+                    <div class="text-muted small">
+                        Min: {{ dailyForecast.temp.min | number: '.0-0' }}° |
+                        Max: {{ dailyForecast.temp.max | number: '.0-0' }}°
+                    </div>
+                </div>
+                <img [src]="weatherService.getWeatherIcon(dailyForecast.weather[0].id)"
+                     class="weather-icon"
+                     alt="weather icon"/>
             </div>
-            <div>{{ dailyForecast.weather[0].main }}</div>
-            <div class="text-muted small">
-                Min: {{ dailyForecast.temp.min | number: '.0-0' }}° | Max: {{ dailyForecast.temp.max | number: '.0-0' }}°
+
+            <div class="text-center mt-4">
+                <button class="back-btn-lg" [routerLink]="['/']">← Back to main page</button>
             </div>
         </div>
-        <img [src]="weatherService.getWeatherIcon(dailyForecast.weather[0].id)"
-             class="weather-icon"
-             alt="weather icon" />
-    </div>
-
-    <div class="text-center mt-4">
-        <button class="back-btn-lg" [routerLink]="['/']">← Back to main page</button>
     </div>
 </div>
+<app-settings></app-settings>

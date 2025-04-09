@@ -13,6 +13,7 @@ export class CurrentConditionsComponent {
     private weatherService = inject(WeatherService);
     private router = inject(Router);
     protected locationService = inject(LocationService);
+    loadingConditions = this.weatherService.loadingCurrentConditions;
 
     private fetchedZips = new Set<string>();
     protected currentConditionsByZip: Signal<ConditionsAndZip[]> =
