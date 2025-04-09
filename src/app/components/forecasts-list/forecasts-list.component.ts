@@ -4,28 +4,36 @@ import { ActivatedRoute } from '@angular/router';
 import { Forecast } from '../../model/forecast.model';
 
 @Component({
-  selector: 'app-forecasts-list',
-  templateUrl: './forecasts-list.component.html',
-  styleUrls: ['./forecasts-list.component.css']
+    selector: 'app-forecasts-list',
+    templateUrl: './forecasts-list.component.html',
+    styleUrls: ['./forecasts-list.component.css']
 })
 export class ForecastsListComponent {
-  zipcode: string;
-  forecast: Signal<Forecast | undefined>;
-  loading = this.weatherService.loadingForecast;
+    zipcode: string;
 
-  constructor(protected weatherService: WeatherService, route: ActivatedRoute) {
-    route.params.subscribe(params => {
-      this.zipcode = params['zipcode'];
+    // Signal holding the forecast for the current ZIP code
+    forecast: Signal<Forecast | undefined>;
 
-      // ✅ Create computed signal for this zip
-      this.forecast = computed(() =>
-          this.weatherService.getForeCastSignal()().get(this.zipcode)
-      );
+    // Signal indicating if forecast data is currently loading
+    loading = this.weatherService.loadingForecast;
 
-      // ✅ Optionally fetch forecast if not yet cached
-      if (!this.forecast()) {
-        this.weatherService.forceRefreshForecast(this.zipcode);
-      }
-    });
-  }
+    constructor(
+        protected weatherService: WeatherService,
+        route: ActivatedRoute
+    ) {
+        // Subscribe to route parameters to react when the ZIP code changes in the URL
+        route.params.subscribe(params => {
+            this.zipcode = params['zipcode'];
+
+            // Create a reactive computed signal for the forecast of this ZIP code
+            this.forecast = computed(() =>
+                this.weatherService.getForeCastSignal()().get(this.zipcode)
+            );
+
+            // If forecast not already cached, fetch it from the API
+            if (!this.forecast()) {
+                this.weatherService.forceRefreshForecast(this.zipcode);
+            }
+        });
+    }
 }

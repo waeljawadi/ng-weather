@@ -1,8 +1,8 @@
-import {Component, effect, inject, Signal} from '@angular/core';
-import {WeatherService} from '../../services/weather.service';
-import {LocationService} from '../../services/location.service';
-import {Router} from '@angular/router';
-import {ConditionsAndZip} from '../../model/conditions-and-zip.model';
+import { Component, effect, inject, Signal } from '@angular/core';
+import { WeatherService } from '../../services/weather.service';
+import { LocationService } from '../../services/location.service';
+import { Router } from '@angular/router';
+import { ConditionsAndZip } from '../../model/conditions-and-zip.model';
 
 @Component({
     selector: 'app-current-conditions',
@@ -10,27 +10,37 @@ import {ConditionsAndZip} from '../../model/conditions-and-zip.model';
     styleUrls: ['./current-conditions.component.css']
 })
 export class CurrentConditionsComponent {
+    // Services injected via Angular's inject() function
     private weatherService = inject(WeatherService);
     private router = inject(Router);
     protected locationService = inject(LocationService);
+
+    // Signal that tracks whether current conditions are loading
     loadingConditions = this.weatherService.loadingCurrentConditions;
 
+    // Track which ZIP codes have already been fetched to avoid duplicates
     private fetchedZips = new Set<string>();
+
+    // Signal holding current weather conditions by ZIP
     protected currentConditionsByZip: Signal<ConditionsAndZip[]> =
         this.weatherService.getCurrentConditions();
 
     constructor() {
+        // Reactive effect to automatically fetch data when locations change
         effect(() => this.getLocations());
     }
 
+    // Get currently open tab index from localStorage
     public get openTabId(): number {
         return Number(localStorage.getItem('openTabId') ?? 0);
     }
 
+    // Save current open tab index to localStorage
     public set openTabId(value: number) {
         localStorage.setItem('openTabId', String(value));
     }
 
+    // Remove a condition by its index in the list
     public removeCondition(index: number): void {
         const zipcode = this.currentConditionsByZip()[index]?.zip;
         if (!zipcode) return;
@@ -39,15 +49,18 @@ export class CurrentConditionsComponent {
         this.adjustOpenTabId(index);
     }
 
+    // Navigate to the forecast view for the given ZIP code
     public showForecast(zipcode: string): void {
         this.router.navigate(['/forecast', zipcode]);
     }
 
+    // Remove ZIP from both location service and weather service
     private removeLocationAndConditions(zipcode: string): void {
         this.locationService.removeLocation(zipcode);
         this.weatherService.removeCurrentConditions(zipcode);
     }
 
+    // Adjust the selected tab when a tab is removed
     private adjustOpenTabId(index: number): void {
         const currentTab = this.openTabId;
 
@@ -58,6 +71,7 @@ export class CurrentConditionsComponent {
         }
     }
 
+    // Fetch current conditions for all known locations (that haven't been fetched yet)
     private getLocations(): void {
         this.locationService.locations()
             .filter(zip => !this.fetchedZips.has(zip))
@@ -67,10 +81,15 @@ export class CurrentConditionsComponent {
             });
     }
 
+    // Convert a Unix timestamp to a local time string
     getTime(unix: number): string {
-        return new Date(unix * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        return new Date(unix * 1000).toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit'
+        });
     }
 
+    // Map weather conditions to background class names for styling
     getWeatherBackground(condition: string): string {
         switch (condition.toLowerCase()) {
             case 'clear':
@@ -92,6 +111,4 @@ export class CurrentConditionsComponent {
                 return 'bg-default';
         }
     }
-
-
 }

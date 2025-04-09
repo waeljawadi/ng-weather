@@ -1,43 +1,43 @@
 .zipcode-container {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    width: 100%;
-    padding: 20px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 20px 0;
 }
 
 .icon {
-    font-size: 20px;
-    margin-right: 4px;
+  font-size: 20px;
+  margin-right: 4px;
 }
 
 .zipcode-input {
-    flex: 1;
-    border: none;
-    border-bottom: 1.5px solid #999;
-    padding: 10px 8px;
-    font-size: 16px;
-    background: transparent;
-    outline: none;
-    transition: border-color 0.3s;
+  flex: 1;
+  border: none;
+  border-bottom: 1.5px solid #999;
+  padding: 10px 8px;
+  font-size: 16px;
+  background: transparent;
+  outline: none;
+  transition: border-color 0.3s;
 }
 
 .zipcode-input:focus {
-    border-bottom-color: #5c6bc0;
+  border-bottom-color: #5c6bc0;
 }
 
 .zipcode-button {
-    background: none;
-    border: 1.5px solid #5c6bc0;
-    color: #5c6bc0;
-    padding: 8px 20px;
-    font-size: 14px;
-    border-radius: 20px;
-    cursor: pointer;
-    transition: all 0.3s ease;
+  background: none;
+  border: 1.5px solid #5c6bc0;
+  color: #5c6bc0;
+  padding: 8px 20px;
+  font-size: 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 .zipcode-button:hover {
-    background-color: #5c6bc0;
-    color: white;
+  background-color: #5c6bc0;
+  color: white;
 }

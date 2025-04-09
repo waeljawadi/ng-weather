@@ -3,49 +3,37 @@
     <p class="loading-text">Loading current conditions...</p>
 </div>
 <div *ngIf="!loadingConditions()">
-
-<tab-container [(openTabId)]="openTabId" (closeTab)="removeCondition($event)">
-    <tab-item *ngFor="let location of currentConditionsByZip(); index as i" [title]="location.data.name">
-
-        <div
-                class="weather-card-horizontal"
-                [ngClass]="getWeatherBackground(location.data.weather[0].main)"
-                (click)="showForecast(location.zip)"
-                [style.animationDelay]="(i * 0.1) + 's'"
-        >
-
-        <!-- Left: Weather Icon -->
-            <div class="weather-icon-box">
-                <img
-                        [src]="weatherService.getWeatherIcon(location.data.weather[0].id)"
-                        alt="weather icon"
-                />
-            </div>
-
-            <!-- Center: Main Info -->
-            <div class="weather-main-info">
-                <h2 class="city">{{ location.data.name }}</h2>
-                <p class="zip">{{ location.zip }}</p>
-                <p class="condition">{{ location.data.weather[0].main }}</p>
-                <div class="temps-row">
-                    <p><span class="temp-icon pulse">🌡️</span> Current: {{ location.data.main.temp | number: '0.0-0' }}°</p>
-                    <p><span class="temp-icon bounce-up">🔺</span> Max: {{ location.data.main.temp_max | number: '0.0-0' }}°</p>
-                    <p><span class="temp-icon bounce-down">🔻</span> Min: {{ location.data.main.temp_min | number: '0.0-0' }}°</p>
+    <tab-container [(openTabId)]="openTabId" (closeTab)="removeCondition($event)">
+        <tab-item *ngFor="let location of currentConditionsByZip(); index as i" [title]="location.data.name">
+            <div
+                    class="weather-card-horizontal"
+                    [ngClass]="getWeatherBackground(location.data.weather[0].main)"
+                    (click)="showForecast(location.zip)"
+                    [style.animationDelay]="(i * 0.1) + 's'">
+                <div class="weather-icon-box">
+                    <img [src]="weatherService.getWeatherIcon(location.data.weather[0].id)" alt="weather icon"/>
+                </div>
+                <div class="weather-main-info">
+                    <h2 class="city">{{ location.data.name }}</h2>
+                    <p class="zip">{{ location.zip }}</p>
+                    <p class="condition">{{ location.data.weather[0].main }}</p>
+                    <div class="temps-row">
+                        <p><span class="temp-icon pulse">🌡️</span>
+                            Current: {{ location.data.main.temp | number: '0.0-0' }}°</p>
+                        <p><span class="temp-icon bounce-up">🔺</span>
+                            Max: {{ location.data.main.temp_max | number: '0.0-0' }}°</p>
+                        <p><span class="temp-icon bounce-down">🔻</span>
+                            Min: {{ location.data.main.temp_min | number: '0.0-0' }}°</p>
+                    </div>
+                </div>
+                <div class="weather-extras">
+                    <p>💨 {{ location.data.wind.speed }} km/h</p>
+                    <p>💧 {{ location.data.main.humidity }}%</p>
+                    <p>🌅 {{ getTime(location.data.sys.sunrise) }}</p>
+                    <p>🌇 {{ getTime(location.data.sys.sunset) }}</p>
+                    <a [routerLink]="['/forecast', location.zip]" class="forecast-link">5 day forecast →</a>
                 </div>
             </div>
-
-            <!-- Right: Extras -->
-            <div class="weather-extras">
-                <p>💨 {{ location.data.wind.speed }} km/h</p>
-                <p>💧 {{ location.data.main.humidity }}%</p>
-                <p>🌅 {{ getTime(location.data.sys.sunrise) }}</p>
-                <p>🌇 {{ getTime(location.data.sys.sunset) }}</p>
-                <a [routerLink]="['/forecast', location.zip]" class="forecast-link">
-                    5 day forecast →
-                </a>
-            </div>
-        </div>
-
-    </tab-item>
-</tab-container>
+        </tab-item>
+    </tab-container>
 </div>

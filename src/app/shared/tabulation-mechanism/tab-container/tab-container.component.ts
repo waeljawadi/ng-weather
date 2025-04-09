@@ -48,6 +48,4 @@ export class TabContainerComponent implements AfterContentChecked {
             }
         });
     }
-
-
 }

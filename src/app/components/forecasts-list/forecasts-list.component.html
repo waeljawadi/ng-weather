@@ -3,11 +3,9 @@
         <div class="spinner"></div>
         <p class="loading-text">Loading forecast...</p>
     </div>
-
     <div *ngIf="!loading()">
         <div *ngIf="forecast() as forecast">
             <h3 class="text-center mb-4 fw-bold">5-day forecast for {{ forecast.city.name }}</h3>
-
             <div *ngFor="let dailyForecast of forecast.list" class="forecast-card">
                 <div>
                     <div class="fw-semibold mb-1">
@@ -23,7 +21,6 @@
                      class="weather-icon"
                      alt="weather icon"/>
             </div>
-
             <div class="text-center mt-4">
                 <button class="back-btn-lg" [routerLink]="['/']">← Back to main page</button>
             </div>
