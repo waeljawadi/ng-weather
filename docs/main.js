@@ -530,19 +530,23 @@ let ConditionService = class ConditionService {
     this.http = (0,_angular_core__WEBPACK_IMPORTED_MODULE_1__.inject)(_angular_common_http__WEBPACK_IMPORTED_MODULE_2__.HttpClient);
     this.currentConditions = (0,_angular_core__WEBPACK_IMPORTED_MODULE_1__.signal)([]);
     this.loading = (0,_angular_core__WEBPACK_IMPORTED_MODULE_1__.signal)(false);
-    this.restoreFromStorage();
+    this.restoreFromStorage(); // Load stored conditions on initialization
   }
+  // Returns the current conditions as a readonly signal
   getConditions() {
     return this.currentConditions.asReadonly();
   }
+  // Adds a zipcode and fetches its conditions if not already present
   add(zip) {
     if (this.currentConditions().some(c => c.zip === zip)) return;
     this.fetch(zip);
   }
+  // Removes a zipcode from the conditions list
   remove(zip) {
     const updated = this.currentConditions().filter(c => c.zip !== zip);
     this.set(updated);
   }
+  // Fetches weather conditions from the API for a given zipcode
   fetch(zip) {
     this.loading.set(true);
     this.http.get(`${_constants_weather_constants__WEBPACK_IMPORTED_MODULE_0__.WEATHER_API_BASE_URL}/weather?zip=${zip},us&units=imperial&APPID=${_constants_weather_constants__WEBPACK_IMPORTED_MODULE_0__.WEATHER_API_KEY}`).subscribe({
@@ -557,10 +561,12 @@ let ConditionService = class ConditionService {
       complete: () => this.loading.set(false)
     });
   }
+  // Updates the signal and persists it in localStorage
   set(value) {
     this.currentConditions.set(value);
     localStorage.setItem(_constants_weather_constants__WEBPACK_IMPORTED_MODULE_0__.CURRENT_CONDITION_STORAGE_KEY, JSON.stringify(value));
   }
+  // Restores previously saved conditions from localStorage
   restoreFromStorage() {
     const raw = localStorage.getItem(_constants_weather_constants__WEBPACK_IMPORTED_MODULE_0__.CURRENT_CONDITION_STORAGE_KEY);
     if (!raw) return;
@@ -609,11 +615,13 @@ let ForecastService = class ForecastService {
     this.http = (0,_angular_core__WEBPACK_IMPORTED_MODULE_1__.inject)(_angular_common_http__WEBPACK_IMPORTED_MODULE_2__.HttpClient);
     this.forecastCache = (0,_angular_core__WEBPACK_IMPORTED_MODULE_1__.signal)(new Map());
     this.loading = (0,_angular_core__WEBPACK_IMPORTED_MODULE_1__.signal)(false);
-    this.restoreFromStorage();
+    this.restoreFromStorage(); // Load cached forecasts from localStorage on init
   }
+  // Returns the forecast cache as a readonly signal
   getForecastCache() {
     return this.forecastCache.asReadonly();
   }
+  // Fetches the 5-day forecast for a given zip and updates cache + localStorage
   fetch(zip) {
     this.loading.set(true);
     this.http.get(`${_constants_weather_constants__WEBPACK_IMPORTED_MODULE_0__.WEATHER_API_BASE_URL}/forecast/daily?zip=${zip},us&units=imperial&cnt=5&APPID=${_constants_weather_constants__WEBPACK_IMPORTED_MODULE_0__.WEATHER_API_KEY}`).subscribe({
@@ -627,6 +635,7 @@ let ForecastService = class ForecastService {
       complete: () => this.loading.set(false)
     });
   }
+  // Restores forecast cache from localStorage
   restoreFromStorage() {
     const raw = localStorage.getItem(_constants_weather_constants__WEBPACK_IMPORTED_MODULE_0__.FORECAST_STORAGE_KEY);
     if (!raw) return;
@@ -677,20 +686,24 @@ let LocationService = class LocationService {
       this.locationsSignal.set(stored);
     }
   }
+  // Adds a zipcode to the list if it doesn't already exist
   addLocation(zipcode) {
     const existing = this.locationsSignal();
     if (existing.includes(zipcode)) return;
     const updated = [...existing, zipcode];
     this.updateLocations(updated);
   }
+  // Removes a zipcode from the list
   removeLocation(zipcode) {
     const updated = this.locationsSignal().filter(zip => zip !== zipcode);
     this.updateLocations(updated);
   }
+  // Updates the signal and saves to localStorage
   updateLocations(locations) {
     this.locationsSignal.set(locations);
     localStorage.setItem(LOCATIONS, JSON.stringify(locations));
   }
+  // Retrieves locations from localStorage or returns an empty array
   getStoredLocations() {
     try {
       const raw = localStorage.getItem(LOCATIONS);
@@ -747,12 +760,12 @@ let WeatherService = class WeatherService {
     this.loadSavedConditions(); // Step 2: Load saved ZIPs and their conditions
     this.setupAutoRefresh(); // Step 3: Setup reactive refresh intervals
   }
-  // Set refresh interval from localStorage or fallback to 10000 ms
+  // Set refresh interval from localStorage or fallback to 7200000 ms (2 hours)
   initRefreshCycle() {
     const stored = localStorage.getItem('refreshCacheCycle');
     if (stored === null) {
-      localStorage.setItem('refreshCacheCycle', '10000');
-      this.refreshCacheCycle.set(10000);
+      localStorage.setItem('refreshCacheCycle', '7200000');
+      this.refreshCacheCycle.set(7200000);
     } else {
       this.refreshCacheCycle.set(Number(stored));
     }

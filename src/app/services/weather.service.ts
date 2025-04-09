@@ -22,12 +22,12 @@ export class WeatherService {
         this.setupAutoRefresh();         // Step 3: Setup reactive refresh intervals
     }
 
-    // Set refresh interval from localStorage or fallback to 10000 ms
+    // Set refresh interval from localStorage or fallback to 7200000 ms (2 hours)
     private initRefreshCycle(): void {
         const stored = localStorage.getItem('refreshCacheCycle');
         if (stored === null) {
-            localStorage.setItem('refreshCacheCycle', '10000');
-            this.refreshCacheCycle.set(10000);
+            localStorage.setItem('refreshCacheCycle', '7200000');
+            this.refreshCacheCycle.set(7200000);
         } else {
             this.refreshCacheCycle.set(Number(stored));
         }

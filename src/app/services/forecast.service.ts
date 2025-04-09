@@ -11,13 +11,15 @@ export class ForecastService {
     public loading = signal<boolean>(false);
 
     constructor() {
-        this.restoreFromStorage();
+        this.restoreFromStorage(); // Load cached forecasts from localStorage on init
     }
 
+    // Returns the forecast cache as a readonly signal
     getForecastCache(): Signal<Map<string, Forecast>> {
         return this.forecastCache.asReadonly();
     }
 
+    // Fetches the 5-day forecast for a given zip and updates cache + localStorage
     fetch(zip: string): void {
         this.loading.set(true);
         this.http.get<Forecast>(`${WEATHER_API_BASE_URL}/forecast/daily?zip=${zip},us&units=imperial&cnt=5&APPID=${WEATHER_API_KEY}`)
@@ -33,6 +35,7 @@ export class ForecastService {
             });
     }
 
+    // Restores forecast cache from localStorage
     private restoreFromStorage(): void {
         const raw = localStorage.getItem(FORECAST_STORAGE_KEY);
         if (!raw) return;
