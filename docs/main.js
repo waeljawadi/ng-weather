@@ -168,8 +168,12 @@ let CurrentConditionsComponent = class CurrentConditionsComponent {
     this.loadingConditions = this.weatherService.loadingCurrentConditions;
     // Track which ZIP codes have already been fetched to avoid duplicates
     this.fetchedZips = new Set();
-    // Signal holding current weather conditions by ZIP
-    this.currentConditionsByZip = this.weatherService.getCurrentConditions();
+    // Sort conditions by ZIP order from locationService
+    this.currentConditionsByZip = (0,_angular_core__WEBPACK_IMPORTED_MODULE_4__.computed)(() => {
+      const allConditions = this.weatherService.getCurrentConditions()();
+      const zips = this.locationService.locations();
+      return zips.map(zip => allConditions.find(c => c.zip === zip)).filter(c => !!c);
+    });
     // Reactive effect to automatically fetch data when locations change
     this.getLocations();
   }

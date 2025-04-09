@@ -1,4 +1,4 @@
-import { Component, effect, inject, Signal } from '@angular/core';
+import { Component, computed, inject, Signal } from '@angular/core';
 import { WeatherService } from '../../services/weather.service';
 import { LocationService } from '../../services/location.service';
 import { Router } from '@angular/router';
@@ -21,9 +21,15 @@ export class CurrentConditionsComponent {
     // Track which ZIP codes have already been fetched to avoid duplicates
     private fetchedZips = new Set<string>();
 
-    // Signal holding current weather conditions by ZIP
-    protected currentConditionsByZip: Signal<ConditionsAndZip[]> =
-        this.weatherService.getCurrentConditions();
+    // Sort conditions by ZIP order from locationService
+    protected currentConditionsByZip: Signal<ConditionsAndZip[]> = computed(() => {
+        const allConditions = this.weatherService.getCurrentConditions()();
+        const zips = this.locationService.locations();
+
+        return zips
+            .map(zip => allConditions.find(c => c.zip === zip))
+            .filter((c): c is ConditionsAndZip => !!c);
+    });
 
     constructor() {
         // Reactive effect to automatically fetch data when locations change
