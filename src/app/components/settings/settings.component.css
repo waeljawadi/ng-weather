@@ -1,0 +1,63 @@
+.page-content {
+    padding-bottom: 100px;
+}
+
+.sticky-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 100px;
+    background-color: #f9f9f9;
+    border-top: 1px solid #ddd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    padding: 0 2rem;
+    box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.05);
+    z-index: 999;
+}
+
+.sticky-footer input {
+    padding: 10px 14px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    width: 300px;
+    transition: border-color 0.2s;
+}
+
+.sticky-footer input:focus {
+    border-color: #4CAF50;
+    outline: none;
+}
+
+.sticky-footer button {
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.sticky-footer button:hover {
+    background-color: #45a049;
+}
+.sticky-footer button {
+    padding: 10px 20px;
+    background-color: #5dade2;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.sticky-footer button:hover {
+    background-color: #3498db;
+}

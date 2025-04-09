@@ -1,0 +1,11 @@
+<footer class="sticky-footer">
+    <label for="refreshCycleInput">Refresh cache interval (seconds):</label>
+    <input
+            id="refreshCycleInput"
+            type="number"
+            [(ngModel)]="refreshCacheCycle"
+            placeholder="Refresh weather cache after x seconds"
+            min="1"
+    />
+    <button (click)="setRefreshCycle()">Update refresh cycle</button>
+</footer>

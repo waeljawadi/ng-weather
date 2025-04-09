@@ -15,6 +15,7 @@ import {HttpClientModule} from '@angular/common/http';
 import {ServiceWorkerModule} from '@angular/service-worker';
 import {environment} from '../environments/environment';
 import {TabulationMechanismModule} from './shared/tabulation-mechanism/tabulation-mechanism.module';
+import {SettingsComponent} from './components/settings/settings.component';
 
 @NgModule({
     declarations: [
@@ -23,6 +24,7 @@ import {TabulationMechanismModule} from './shared/tabulation-mechanism/tabulatio
         ForecastsListComponent,
         CurrentConditionsComponent,
         MainPageComponent,
+        SettingsComponent
     ],
     imports: [
         BrowserModule,

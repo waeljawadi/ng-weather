@@ -1,4 +1,4 @@
-import {inject, Injectable, signal, Signal} from '@angular/core';
+import {effect, inject, Injectable, signal, Signal} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Observable, of} from 'rxjs';
 import {tap} from 'rxjs/operators';
@@ -23,6 +23,10 @@ export class WeatherService {
 
     private currentConditions = signal<ConditionsAndZip[]>([]);
     private forecastCache = signal<Map<string, Forecast>>(new Map());
+    refreshCacheCycle = signal<number>(10000);
+
+    private currentConditionIntervalId: any;
+    private forecastIntervalId: any;
 
     constructor() {
         this.restoreConditionsFromStorage();
@@ -30,17 +34,25 @@ export class WeatherService {
 
         this.locationService.locations().forEach(zip => this.addCurrentConditions(zip));
 
-        startAutoRefresh(
-            () => this.locationService.locations(),
-            (zip) => this.forceRefreshCurrentConditions(zip),
-            10000
-        );
 
-        startAutoRefresh(
-            () => this.locationService.locations(),
-            (zip) => this.forceRefreshForecast(zip),
-            10000
-        );
+        effect(() => {
+            const cycle = this.refreshCacheCycle();
+            clearInterval(this.currentConditionIntervalId);
+            clearInterval(this.forecastIntervalId);
+
+
+            this.currentConditionIntervalId = startAutoRefresh(
+                () => this.locationService.locations(),
+                (zip) => this.forceRefreshCurrentConditions(zip),
+                Number(cycle)
+            );
+
+            this.forecastIntervalId = startAutoRefresh(
+                () => this.locationService.locations(),
+                (zip) => this.forceRefreshForecast(zip),
+                Number(cycle)
+            );
+        })
     }
 
     addCurrentConditions(zipcode: string): void {
