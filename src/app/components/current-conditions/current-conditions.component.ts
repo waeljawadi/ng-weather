@@ -10,7 +10,7 @@ import { ConditionsAndZip } from '../../model/conditions-and-zip.model';
     styleUrls: ['./current-conditions.component.css']
 })
 export class CurrentConditionsComponent {
-    // Services injected via Angular's inject() function
+    // Services injected
     private weatherService = inject(WeatherService);
     private router = inject(Router);
     protected locationService = inject(LocationService);
