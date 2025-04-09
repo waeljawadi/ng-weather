@@ -8,12 +8,21 @@ import { WeatherService } from '../../services/weather.service';
 })
 export class SettingsComponent {
 
-    refreshCacheCycle: number
+    refreshCacheCycle: number;
+
     constructor(private weatherService: WeatherService) {
-         this.refreshCacheCycle = Number(localStorage.getItem('refreshCacheCycle'));
-        if (this.refreshCacheCycle) {
-            this.weatherService.refreshCacheCycle.set(this.refreshCacheCycle);
+        const stored = localStorage.getItem('refreshCacheCycle');
+
+        // If value exists, use it — otherwise default to 10000
+        this.refreshCacheCycle = stored ? Number(stored) : 10000;
+
+        // Save default value to localStorage if it didn't exist
+        if (!stored) {
+            localStorage.setItem('refreshCacheCycle', String(this.refreshCacheCycle));
         }
+
+        // Update signal
+        this.weatherService.refreshCacheCycle.set(this.refreshCacheCycle);
     }
 
     setRefreshCycle(): void {
